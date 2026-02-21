@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agenda</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h2>Praise Group</h2>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="repertorio.html">Repertório</a>
+    <a href="agenda.html">Agenda</a>
+    <a href="novo-louvor.html">Novo Louvor</a>
+  </nav>
+
+  <!-- (Opcional, mas recomendado p/ manter padrão) -->
+  <div class="toggle-container">
+    <label class="switch">
+      <input type="checkbox" id="darkToggle">
+      <span class="slider"></span>
+    </label>
+  </div>
+</header>
+
+<section class="agenda-card">
+  <h2>Agenda da Semana</h2>
+
+  <h3>Sede</h3>
+  <div class="agenda-days">
+
+    <div class="agenda-day day-card" data-day="sede-quarta">
+      <div class="day-top">
+        <strong>Quarta-feira</strong>
+        <button class="day-add" type="button">+ Adicionar</button>
+      </div>
+      <ul class="day-list"></ul>
+    </div>
+
+    <div class="agenda-day day-card" data-day="sede-sexta">
+      <div class="day-top">
+        <strong>Sexta-feira</strong>
+        <button class="day-add" type="button">+ Adicionar</button>
+      </div>
+      <ul class="day-list"></ul>
+    </div>
+
+    <div class="agenda-day day-card" data-day="sede-domingo-manha">
+      <div class="day-top">
+        <strong>Domingo - Manhã</strong>
+        <button class="day-add" type="button">+ Adicionar</button>
+      </div>
+      <ul class="day-list"></ul>
+    </div>
+
+    <div class="agenda-day day-card" data-day="sede-domingo-noite">
+      <div class="day-top">
+        <strong>Domingo - Noite</strong>
+        <button class="day-add" type="button">+ Adicionar</button>
+      </div>
+      <ul class="day-list"></ul>
+    </div>
+
+  </div>
+
+  <h3>Santa Lídia</h3>
+  <div class="agenda-days">
+
+    <div class="agenda-day day-card" data-day="sl-terca">
+      <div class="day-top">
+        <strong>Terça-feira</strong>
+        <button class="day-add" type="button">+ Adicionar</button>
+      </div>
+      <ul class="day-list"></ul>
+    </div>
+
+    <div class="agenda-day day-card" data-day="sl-domingo-manha">
+      <div class="day-top">
+        <strong>Domingo - Manhã</strong>
+        <button class="day-add" type="button">+ Adicionar</button>
+      </div>
+      <ul class="day-list"></ul>
+    </div>
+
+  </div>
+
+  <!-- ================= MODAL: ADICIONAR LOUVOR NA AGENDA ================= -->
+<div class="modal-backdrop" id="agendaModal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-header">
+      <h3 id="modalTitle">Adicionar Louvor</h3>
+      <button class="modal-close" type="button" id="modalClose" aria-label="Fechar">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <label class="field">
+        <span>Nome do Louvor *</span>
+        <input type="text" id="mNome" placeholder="Ex: Oceanos" />
+      </label>
+
+      <label class="field">
+        <span>Link YouTube</span>
+        <input type="url" id="mYoutube" placeholder="https://youtube.com/..." />
+      </label>
+
+      <label class="field">
+        <span>Link Letras</span>
+        <input type="url" id="mLetra" placeholder="https://www.letras.mus.br/..." />
+      </label>
+
+      <label class="field">
+        <span>Link Cifra Club</span>
+        <input type="url" id="mCifra" placeholder="https://www.cifraclub.com.br/..." />
+      </label>
+
+      <p class="modal-hint">* obrigatório</p>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-secondary" type="button" id="modalCancel">Cancelar</button>
+      <button class="btn-primary" type="button" id="modalSave">Salvar</button>
+    </div>
+  </div>
+</div>
+
+</section>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Repertório - Praise Group</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header>
+  <h2>Praise Group</h2>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="repertorio.html">Repertório</a>
+    <a href="agenda.html">Agenda</a>
+    <a href="novo-louvor.html">Novo Louvor</a>
+  </nav>
+
+  <div class="toggle-container">
+    <label class="switch">
+      <input type="checkbox" id="darkToggle">
+      <span class="slider"></span>
+    </label>
+  </div>
+</header>
+
+<main class="repertorio-container">
+  <h1 class="page-title">Repertório</h1>
+
+  <!-- ================= CARDS ================= -->
+  <section class="cards-container">
+    <button class="card" type="button" onclick="abrirLouvores('joao')"><span>João</span></button>
+    <button class="card" type="button" onclick="abrirLouvores('antonio')"><span>Antonio Carlos</span></button>
+    <button class="card" type="button" onclick="abrirLouvores('sofia')"><span>Sofia</span></button>
+    <button class="card" type="button" onclick="abrirLouvores('jessica')"><span>Jessica</span></button>
+    <button class="card" type="button" onclick="abrirLouvores('laura')"><span>Laura</span></button>
+    <button class="card" type="button" onclick="abrirLouvores('kele')"><span>Kele</span></button>
+    <button class="card" type="button" onclick="abrirLouvores('eliana')"><span>Eliana</span></button>
+    <button class="card" type="button" onclick="abrirLouvores('edilene')"><span>Edilene</span></button>
+    <button class="card" type="button" onclick="abrirLouvores('elaine')"><span>Elaine</span></button>
+    <button class="card" type="button" onclick="abrirLouvores('maisa')"><span>Maisa</span></button>
+    <button class="card" type="button" onclick="abrirLouvores('kauan')"><span>Kauan</span></button>
+    <button class="card" type="button" onclick="abrirLouvores('sugestoes')"><span>Sugestões</span></button>
+  </section>
+
+  <!-- ================= LISTA (SÓ MUDA QUANDO CLICA) ================= -->
+  <section class="lista-louvores" id="listaLouvores" tabindex="-1">
+    <h2>Louvores</h2>
+    <p class="muted">Selecione uma pessoa acima para ver a lista.</p>
+  </section>
+</main>
+
+<script src="script.js"></script>
+</body>
+</html>

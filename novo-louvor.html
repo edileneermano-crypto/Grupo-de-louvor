@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Novo Louvor</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <h2>Praise Group</h2>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="repertorio.html">Repertório</a>
+    <a href="agenda.html">Agenda</a>
+    <a href="novo-louvor.html">Novo Louvor</a>
+  </nav>
+
+  <div class="toggle-container">
+    <label class="switch">
+      <input type="checkbox" id="darkToggle">
+      <span class="slider"></span>
+    </label>
+  </div>
+</header>
+
+<section class="form-card">
+  <h2>Adicionar Novo Louvor</h2>
+
+  <select id="pessoa">
+    <option value="">Selecione o Ministro</option>
+    <option value="joao">João</option>
+    <option value="antonio">Antonio Carlos</option>
+    <option value="sofia">Sofia</option>
+    <option value="jessica">Jessica</option>
+    <option value="laura">Laura</option>
+    <option value="kele">Kele</option>
+    <option value="eliana">Eliana</option>
+    <option value="edilene">Edilene</option>
+    <option value="elaine">Elaine</option>
+    <option value="maisa">Maisa</option>
+    <option value="kauan">Kauan</option>
+    <option value="sugestoes">Sugestões</option>
+  </select>
+
+  <input type="text" id="nome" placeholder="Nome do Louvor">
+  <input type="text" id="youtube" placeholder="Link YouTube">
+  <input type="text" id="letra" placeholder="Link Letras">
+  <input type="text" id="cifra" placeholder="Link Cifra Club">
+
+  <button onclick="salvarLouvor()">Salvar Louvor</button>
+</section>
+
+<script src="script.js"></script>
+</body>
+</html>
