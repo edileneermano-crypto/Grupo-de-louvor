@@ -45,6 +45,45 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* =========================
+   MENU HAMBURGER (MOBILE)
+========================= */
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("hamburger");
+  const nav = document.getElementById("mainNav");
+
+  if (!btn || !nav) return;
+
+  const closeMenu = () => {
+    nav.classList.remove("nav-open");
+    btn.classList.remove("is-open");
+    btn.setAttribute("aria-expanded", "false");
+  };
+
+  const toggleMenu = () => {
+    const open = nav.classList.toggle("nav-open");
+    btn.classList.toggle("is-open", open);
+    btn.setAttribute("aria-expanded", open ? "true" : "false");
+  };
+
+  btn.addEventListener("click", toggleMenu);
+
+  // Fecha ao clicar em qualquer link
+  nav.querySelectorAll("a").forEach(a => {
+    a.addEventListener("click", closeMenu);
+  });
+
+  // Fecha com ESC
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeMenu();
+  });
+
+  // Se sair do mobile, fecha o menu
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 768) closeMenu();
+  });
+});
+
+/* =========================
    3) REPERTÓRIO
 ========================= */
 function initRepertorioHashOpen() {
@@ -322,3 +361,4 @@ function escapeHTML(str){
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
+
