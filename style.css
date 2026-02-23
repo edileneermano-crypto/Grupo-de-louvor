@@ -12,12 +12,34 @@ img{ max-width: 100%; height: auto; }
 /* =========================
    BASE
 ========================= */
+
+
 body{
   margin:0;
+  padding: 0;
   font-family: 'Segoe UI', sans-serif;
   background: var(--dark);
   color:#fff;
   transition: 0.3s ease;
+}
+
+/* Remove as margens que causam faixas brancas/pretas nas bordas */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden; /* Impede que o site balance para os lados */
+}
+
+/* Força o Hero a preencher a tela toda no celular */
+@media (max-width: 768px) {
+    .hero {
+        min-height: 100svh !important; /* 'svh' é a altura real da tela mobile */
+        height: auto;
+        background-attachment: scroll; /* Melhora a performance no celular */
+        background-size: cover !important;
+        background-position: center center !important;
+    }
 }
 
 /* =========================
