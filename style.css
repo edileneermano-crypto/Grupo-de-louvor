@@ -651,18 +651,26 @@ body.light .day-list li{
     align-self: flex-end;
   }
 
-  /* HERO */
-  .hero{
-    height: 88vh; /* deixa bonito no celular */
-  }
-  .hero h1{
-    font-size: 40px;
-    line-height: 1.1;
-  }
-  .hero p{
-    font-size: 15px;
-    padding: 0 10px;
-  }
+  /* =========================
+   HERO FULL SCREEN (MOBILE FIX)
+========================= */
+.hero{
+  position: relative;
+  min-height: 100svh; /* ✅ mobile correto */
+  background:
+    linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)),
+    url("https://images.unsplash.com/photo-1507838153414-b4b713384a76") center/cover no-repeat;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  animation: zoom 20s infinite alternate ease-in-out;
+}
+
+/* Se você estiver usando a div .hero-overlay, pode deixá-la mais fraca */
+.hero-overlay{
+  background: rgba(0,0,0,0.35); /* antes estava 0.6 (escurecia demais) */
+}
 
   /* PÁGINAS */
   .repertorio-container{
@@ -793,4 +801,142 @@ body.light .hamburger{ background: rgba(0,0,0,0.06); }
 body.light header nav.nav-open{
   background: rgba(255,255,255,0.75);
   border: 1px solid rgba(0,0,0,0.08);
+}
+
+/* =========================
+   MOBILE HEADER (PROFISSIONAL)
+   - Desktop não muda
+========================= */
+@media (max-width: 768px){
+  header{
+    display: grid;
+    grid-template-columns: 1fr auto auto; /* título | toggle | hamburger */
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+  }
+
+  header h2{
+    margin: 0;
+    font-size: 20px;
+  }
+
+  /* mantém o toggle alinhado e menor */
+  .toggle-container{
+    justify-self: end;
+    transform: scale(0.95);
+    transform-origin: right center;
+  }
+
+  /* hamburger sempre alinhado ao lado do toggle */
+  .hamburger{
+    display: inline-flex;
+    justify-self: end;
+    width: 44px;
+    height: 38px;
+  }
+
+  /* nav vira dropdown bonito */
+  header nav{
+    grid-column: 1 / -1; /* ocupa linha inteira */
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 14px;
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.12);
+    backdrop-filter: blur(10px);
+  }
+
+  header nav.nav-open{
+    display: flex;
+  }
+
+  header nav a{
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 12px;
+  }
+
+  /* Light mode dropdown */
+  body.light header nav{
+    background: rgba(255,255,255,0.78);
+    border: 1px solid rgba(0,0,0,0.10);
+  }
+}
+
+/* ====== ICONES ======= */
+
+/* Tamanho dos ícones e alinhamento */
+.icon-img{
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+  display: block;
+  opacity: 0.95;
+  transition: transform .2s ease, opacity .2s ease;
+}
+
+.icons a:hover .icon-img{
+  transform: translateY(-2px);
+  opacity: 1;
+}
+
+/* ======== ICONES AGENDA =========== */
+
+/* Container principal da linha do louvor */
+/* Este é o container que envolve o nome, o ícone e o botão */
+.louvor-item-lista {
+    display: flex;
+    align-items: center;    /* Alinha tudo no centro verticalmente */
+    justify-content: space-between; /* Nome na esquerda, ícones/botão na direita */
+    padding: 10px;
+    gap: 10px;              /* Espaço entre os elementos */
+}
+
+/* Garante que o nome da música não empurre os ícones */
+.nome-louvor {
+    flex: 1;                /* Faz o nome ocupar o máximo de espaço na esquerda */
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    white-space: nowrap;    /* Impede que o nome quebre em duas linhas */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Se o nome for gigante, coloca "..." */
+}
+
+/* Estilo específico para o ícone dourado */
+.mini-icon {
+    width: 22px;
+    height: 22px;
+    display: block;         /* Remove espaços extras de fontes */
+    object-fit: contain;
+}
+
+/* Opcional: Para alinhar os links e o botão como um bloco só */
+.day-links {
+    display: flex;
+    align-items: center;    /* Centraliza o ícone com o botão */
+    gap: 8px;               /* Espaço entre o ícone do YouTube e o botão Remover */
+}
+
+/* Logos dourados (YouTube, Letras, Cifra) */
+.mini-icon {
+    width: 30px;
+    height: 30px;
+    object-fit: contain; /* Garante que não achate o círculo */
+    transition: transform 0.2s;
+}
+
+.mini-icon:hover {
+    transform: scale(1.1);
+}
+
+/* Botão remover alinhado */
+.day-remove {
+    padding: 4px 8px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-left: 5px;
 }
