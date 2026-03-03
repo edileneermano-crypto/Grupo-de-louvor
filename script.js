@@ -126,6 +126,7 @@ function setupRepertorioFirestore(fb) {
       elaine: "Elaine",
       maisa: "Maisa",
       kauan: "Kauan",
+      mulheresjustificadas: "Mulheres Justificadas",
       sugestoes: "Sugestões",
     };
 

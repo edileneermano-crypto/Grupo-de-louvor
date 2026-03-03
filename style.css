@@ -239,6 +239,12 @@ input:checked + .slider:before{ transform:translateX(28px); background:#fff; }
 .icons a{ text-decoration:none; font-size:18px; }
 .muted{ opacity:.75; }
 
+.card.destaque {
+  border: 2px solid #7c1204;
+  background: linear-gradient(145deg, #9b2e2e, #690b0b);
+  box-shadow: 0 0 15px rgba(82, 1, 1, 0.5);
+}
+
 /* =========================
    AGENDA
 ========================= */
