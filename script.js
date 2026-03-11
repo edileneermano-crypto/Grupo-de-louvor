@@ -1,10 +1,13 @@
 /* =========================================================
-   PRAISE GROUP - SCRIPT (LIMPO E SEM TRAVAR O HOME)
+   PRAISE GROUP - SCRIPT PRINCIPAL
+   Código organizado, limpo e integrado ao Firestore
 ========================================================= */
 
-/* =========================
-   1) LOADER (fecha se existir)
-========================= */
+
+/* =========================================================
+   1) LOADER
+   Fecha automaticamente se existir na página
+========================================================= */
 window.addEventListener("load", () => {
   const loader = document.getElementById("loader");
   if (!loader) return;
@@ -18,9 +21,11 @@ window.addEventListener("load", () => {
   setTimeout(close, 4000);
 });
 
-/* =========================
-   2) DARK MODE (global)
-========================= */
+
+/* =========================================================
+   2) DARK MODE
+   Tema global salvo no localStorage
+========================================================= */
 document.addEventListener("DOMContentLoaded", () => {
   const toggle = document.getElementById("darkToggle");
   const tema = localStorage.getItem("tema") || "dark";
@@ -31,7 +36,10 @@ document.addEventListener("DOMContentLoaded", () => {
   if (toggle) {
     toggle.addEventListener("change", () => {
       document.body.classList.toggle("light");
-      localStorage.setItem("tema", document.body.classList.contains("light") ? "light" : "dark");
+      localStorage.setItem(
+        "tema",
+        document.body.classList.contains("light") ? "light" : "dark"
+      );
     });
   }
 
@@ -39,9 +47,11 @@ document.addEventListener("DOMContentLoaded", () => {
   initFirestoreFeatures();
 });
 
-/* =========================
-   3) HAMBURGER (MOBILE)
-========================= */
+
+/* =========================================================
+   3) MENU HAMBURGER
+   Controle do menu mobile
+========================================================= */
 function initHamburger() {
   const btn = document.getElementById("hamburger");
   const nav = document.getElementById("mainNav");
@@ -60,7 +70,7 @@ function initHamburger() {
   };
 
   btn.addEventListener("click", toggleMenu);
-  nav.querySelectorAll("a").forEach(a => a.addEventListener("click", closeMenu));
+  nav.querySelectorAll("a").forEach((a) => a.addEventListener("click", closeMenu));
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeMenu();
@@ -77,12 +87,15 @@ function initHamburger() {
   });
 }
 
-/* =========================
-   4) FIRESTORE (dinâmico)
-========================= */
+
+/* =========================================================
+   4) INICIALIZAÇÃO DO FIRESTORE
+   Ativa apenas os recursos da página atual
+========================================================= */
 async function initFirestoreFeatures() {
   const isRepertorio = !!document.getElementById("listaLouvores");
-  const isNovoLouvor = !!document.getElementById("pessoa") && !!document.getElementById("nome");
+  const isNovoLouvor =
+    !!document.getElementById("pessoa") && !!document.getElementById("nome");
   const isAgenda = !!document.querySelector(".day-card");
 
   if (!isRepertorio && !isNovoLouvor && !isAgenda) return;
@@ -101,13 +114,123 @@ async function initFirestoreFeatures() {
   if (isAgenda) setupAgendaFirestore(fb);
 }
 
-/* =========================
-   5) REPERTÓRIO (Firestore realtime)
-========================= */
+
+/* =========================================================
+   5) REPERTÓRIO
+   Lista em tempo real + pesquisa de louvores por pasta
+========================================================= */
 function setupRepertorioFirestore(fb) {
   let unsubscribe = null;
+  let listaAtual = [];
+  let tituloAtual = "";
+  let termoBuscaAtual = "";
 
-  // 1) Define a função global PRIMEIRO (para o onclick funcionar)
+  function normalizarTexto(texto) {
+    return String(texto || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+  }
+
+ function renderLouvores(listaFiltrada) {
+  const container = document.getElementById("listaLouvores");
+  if (!container) return;
+
+  let html = `
+    <h2>Louvores - ${tituloAtual}</h2>
+
+    <div class="repertorio-search">
+      <input
+        type="text"
+        id="buscarLouvor"
+        placeholder="Pesquisar louvor nesta pasta..."
+        aria-label="Pesquisar louvor nesta pasta"
+      />
+    </div>
+  `;
+
+  if (!listaAtual.length) {
+    html += `<p class="muted">Nenhum louvor adicionado ainda.</p>`;
+    container.innerHTML = html;
+
+    const inputBusca = document.getElementById("buscarLouvor");
+    if (inputBusca) {
+      inputBusca.value = termoBuscaAtual;
+      inputBusca.addEventListener("input", handleBuscaLouvor);
+
+      if (termoBuscaAtual) {
+        inputBusca.focus();
+        inputBusca.setSelectionRange(inputBusca.value.length, inputBusca.value.length);
+      }
+    }
+    return;
+  }
+
+  if (!listaFiltrada.length) {
+    html += `<p class="muted">Nenhum louvor encontrado.</p>`;
+    container.innerHTML = html;
+
+    const inputBusca = document.getElementById("buscarLouvor");
+    if (inputBusca) {
+      inputBusca.value = termoBuscaAtual;
+      inputBusca.addEventListener("input", handleBuscaLouvor);
+
+      inputBusca.focus();
+      inputBusca.setSelectionRange(inputBusca.value.length, inputBusca.value.length);
+    }
+    return;
+  }
+
+  listaFiltrada.forEach((l, idx) => {
+    html += `
+      <div class="louvor-item">
+        <strong>${idx + 1}. ${escapeHTML(l.nome || "")}</strong>
+        <div class="icons">
+          ${l.youtube ? `
+            <a href="${l.youtube}" target="_blank" rel="noopener" title="YouTube">
+              <img src="icon/icone youtube.png" class="icon-img" alt="YouTube">
+            </a>` : ""}
+
+          ${l.letra ? `
+            <a href="${l.letra}" target="_blank" rel="noopener" title="Letra">
+              <img src="icon/icone letras.png" class="icon-img" alt="Letra">
+            </a>` : ""}
+
+          ${l.cifra ? `
+            <a href="${l.cifra}" target="_blank" rel="noopener" title="Cifra">
+              <img src="icon/icone cifra club.png" class="icon-img" alt="Cifra">
+            </a>` : ""}
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+
+  const inputBusca = document.getElementById("buscarLouvor");
+  if (inputBusca) {
+    inputBusca.value = termoBuscaAtual;
+    inputBusca.addEventListener("input", handleBuscaLouvor);
+
+    if (termoBuscaAtual) {
+      inputBusca.focus();
+      inputBusca.setSelectionRange(inputBusca.value.length, inputBusca.value.length);
+    }
+  }
+}
+
+  function handleBuscaLouvor(e) {
+    termoBuscaAtual = e.target.value || "";
+    const termoNormalizado = normalizarTexto(termoBuscaAtual);
+
+    const listaFiltrada = listaAtual.filter((louvor) =>
+      normalizarTexto(louvor.nome || "").includes(termoNormalizado)
+    );
+
+    renderLouvores(listaFiltrada);
+  }
+
   window.abrirLouvores = function (pessoa) {
     const container = document.getElementById("listaLouvores");
     if (!container) return;
@@ -130,47 +253,18 @@ function setupRepertorioFirestore(fb) {
       sugestoes: "Sugestões",
     };
 
-    const titulo = nomesBonitos[pessoa] || pessoa;
+    tituloAtual = nomesBonitos[pessoa] || pessoa;
+    termoBuscaAtual = "";
 
-    container.innerHTML = `<h2>Louvores - ${titulo}</h2><p class="muted">Carregando...</p>`;
+    container.innerHTML = `<h2>Louvores - ${tituloAtual}</h2><p class="muted">Carregando...</p>`;
     container.scrollIntoView({ behavior: "smooth", block: "start" });
 
     unsubscribe = fb.listenLouvoresByPessoa(pessoa, (lista) => {
-      let html = `<h2>Louvores - ${titulo}</h2>`;
-
-      if (!lista.length) {
-        html += `<p class="muted">Nenhum louvor adicionado ainda.</p>`;
-      } else {
-        lista.forEach((l, idx) => {
-          html += `
-            <div class="louvor-item">
-              <strong>${idx + 1}. ${escapeHTML(l.nome || "")}</strong>
-              <div class="icons">
-                ${l.youtube ? `
-                  <a href="${l.youtube}" target="_blank" rel="noopener" title="YouTube">
-                    <img src="icon/icone youtube.png" class="icon-img" alt="YouTube">
-                  </a>` : ""}
-
-                ${l.letra ? `
-                  <a href="${l.letra}" target="_blank" rel="noopener" title="Letra">
-                    <img src="icon/icone letras.png" class="icon-img" alt="Letra">
-                  </a>` : ""}
-
-                ${l.cifra ? `
-                  <a href="${l.cifra}" target="_blank" rel="noopener" title="Cifra">
-                    <img src="icon/icone cifra club.png" class="icon-img" alt="Cifra">
-                  </a>` : ""}
-              </div>
-            </div>
-          `;
-        });
-      }
-
-      container.innerHTML = html;
+      listaAtual = Array.isArray(lista) ? lista : [];
+      renderLouvores(listaAtual);
     });
   };
 
-  // 2) Só depois, abre automaticamente via hash (repertorio.html#joao)
   const hash = (window.location.hash || "").replace("#", "").trim();
   if (hash) {
     window.abrirLouvores(hash);
@@ -178,9 +272,11 @@ function setupRepertorioFirestore(fb) {
   }
 }
 
-/* =========================
-   6) NOVO LOUVOR (Firestore)
-========================= */
+
+/* =========================================================
+   6) NOVO LOUVOR
+   Salva no Firestore com tratamento de duplicidade
+========================================================= */
 function setupNovoLouvorFirestore(fb) {
   window.salvarLouvor = async function () {
     const pessoa = document.getElementById("pessoa")?.value || "";
@@ -194,21 +290,38 @@ function setupNovoLouvorFirestore(fb) {
       return;
     }
 
-    await fb.addLouvorFirestore(pessoa, { nome, youtube, letra, cifra });
-    window.location.href = `repertorio.html#${encodeURIComponent(pessoa)}`;
+    try {
+      await fb.addLouvorFirestore(pessoa, { nome, youtube, letra, cifra });
+      window.location.href = `repertorio.html#${encodeURIComponent(pessoa)}`;
+    } catch (error) {
+      if (error.message === "LOUVOR_DUPLICADO") {
+        alert("Esse louvor já existe nesta pasta.");
+        return;
+      }
+
+      if (error.message === "NOME_OBRIGATORIO") {
+        alert("Digite o nome do louvor.");
+        return;
+      }
+
+      console.error("Erro ao salvar louvor:", error);
+      alert("Erro ao salvar o louvor. Tente novamente.");
+    }
   };
 }
 
-/* =========================
-   7) AGENDA (Firestore + modal)
-========================= */
+
+/* =========================================================
+   7) AGENDA
+   Integração com Firestore e modal de cadastro
+========================================================= */
 let agendaSelectedDayKey = null;
 
 function setupAgendaFirestore(fb) {
   const dayCards = document.querySelectorAll(".day-card");
   if (!dayCards.length) return;
 
-  dayCards.forEach(card => {
+  dayCards.forEach((card) => {
     const dayKey = card.getAttribute("data-day");
     const ul = card.querySelector(".day-list");
     const addBtn = card.querySelector(".day-add");
@@ -236,17 +349,16 @@ function renderAgendaListFirestore(ul, items, dayKey, fb) {
   ul.innerHTML = items.map((it, idx) => {
     const name = it?.name || it?.nome || "";
 
-    // ===== ÍCONES DOURADOS =====
     const yt = it?.youtube ? `
       <a href="${it.youtube}" target="_blank" rel="noopener" title="YouTube">
         <img src="icon/icone youtube.png" class="mini-icon" alt="YT">
       </a>` : "";
-      
+
     const lt = it?.letra ? `
       <a href="${it.letra}" target="_blank" rel="noopener" title="Letras">
         <img src="icon/icone letras.png" class="mini-icon" alt="LT">
       </a>` : "";
-      
+
     const cf = it?.cifra ? `
       <a href="${it.cifra}" target="_blank" rel="noopener" title="Cifra">
         <img src="icon/icone cifra club.png" class="mini-icon" alt="CF">
@@ -261,8 +373,8 @@ function renderAgendaListFirestore(ul, items, dayKey, fb) {
         <div class="day-links">
           ${yt}${lt}${cf}
 
-          <button 
-            class="day-remove" 
+          <button
+            class="day-remove"
             type="button"
             data-id="${it?.id || ""}"
             data-idx="${idx}">
@@ -273,13 +385,11 @@ function renderAgendaListFirestore(ul, items, dayKey, fb) {
     `;
   }).join("");
 
-  // ===== REMOVER =====
-  ul.querySelectorAll(".day-remove").forEach(btn => {
+  ul.querySelectorAll(".day-remove").forEach((btn) => {
     btn.addEventListener("click", async () => {
       const id = btn.getAttribute("data-id");
       const idx = Number(btn.getAttribute("data-idx"));
 
-      // remove por id OU índice (itens antigos)
       await fb.removeAgendaItemFirestore(
         dayKey,
         id || null,
@@ -305,7 +415,9 @@ function wireAgendaModalEventsFirestore(fb) {
   });
 
   document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && modal.classList.contains("show")) closeAgendaModal();
+    if (e.key === "Escape" && modal.classList.contains("show")) {
+      closeAgendaModal();
+    }
   });
 
   saveBtn?.addEventListener("click", async () => {
@@ -357,9 +469,11 @@ function getAgendaModalValues() {
   return { id: crypto.randomUUID(), name, youtube, letra, cifra };
 }
 
-/* =========================
-   UTIL
-========================= */
+
+/* =========================================================
+   8) UTILITÁRIOS
+   Funções auxiliares gerais do projeto
+========================================================= */
 function escapeHTML(str) {
   return String(str)
     .replaceAll("&", "&amp;")

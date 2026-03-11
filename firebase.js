@@ -10,11 +10,11 @@ import {
   addDoc,
   query,
   where,
-  orderBy,
   onSnapshot,
   serverTimestamp,
   doc,
   getDoc,
+  getDocs,
   setDoc
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
@@ -23,7 +23,10 @@ import {
   signInAnonymously
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
 
-/* ================= FIREBASE CONFIG ================= */
+
+/* =========================================================
+   FIREBASE CONFIG
+========================================================= */
 
 const firebaseConfig = {
   apiKey: "AIzaSyAv4C-UkpSSuHFatzAJlRDa00D0zfSGzKA",
@@ -37,54 +40,113 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 
-/* ================= AUTH ANÔNIMO ================= */
+
+/* =========================================================
+   AUTENTICAÇÃO ANÔNIMA
+========================================================= */
 
 const auth = getAuth(app);
 signInAnonymously(auth);
 
-/* ================= GRUPO FIXO ================= */
+
+/* =========================================================
+   GRUPO FIXO
+========================================================= */
 
 export const GROUP_ID = "JUSTIFICADOS";
 
+
 /* =========================================================
-   LOUVORES (REALTIME)
+   NORMALIZAÇÃO DE TEXTO
+   Padroniza texto para comparação e evita duplicidade
+========================================================= */
+
+function normalizarTexto(texto) {
+  return String(texto || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+
+/* =========================================================
+   LOUVORES - LISTAR EM TEMPO REAL POR PESSOA
 ========================================================= */
 
 export function listenLouvoresByPessoa(pessoaKey, onUpdate) {
   const col = collection(db, "groups", GROUP_ID, "louvores");
   const q = query(
     col,
-    where("pessoa", "==", pessoaKey),
-   
+    where("pessoa", "==", pessoaKey)
   );
 
   return onSnapshot(q, (snap) => {
-    const items = snap.docs.map(d => ({
+    const items = snap.docs.map((d) => ({
       id: d.id,
       ...d.data()
     }));
+
     onUpdate(items);
   });
 }
 
+
+/* =========================================================
+   LOUVORES - VERIFICAR DUPLICIDADE
+   Impede repetir o mesmo louvor na mesma pasta
+========================================================= */
+
+export async function louvorJaExisteFirestore(pessoaKey, nomeLouvor) {
+  const col = collection(db, "groups", GROUP_ID, "louvores");
+  const q = query(col, where("pessoa", "==", pessoaKey));
+  const snap = await getDocs(q);
+
+  const nomeNormalizado = normalizarTexto(nomeLouvor);
+
+  return snap.docs.some((d) => {
+    const data = d.data();
+    const nomeExistente = data.nomeNormalizado || data.nome || "";
+    return normalizarTexto(nomeExistente) === nomeNormalizado;
+  });
+}
+
+
+/* =========================================================
+   LOUVORES - ADICIONAR NO FIRESTORE
+   Valida nome obrigatório e bloqueia duplicados
+========================================================= */
+
 export async function addLouvorFirestore(pessoaKey, data) {
   const col = collection(db, "groups", GROUP_ID, "louvores");
 
+  const nomeLimpo = String(data.nome || "").trim();
+
+  if (!nomeLimpo) {
+    throw new Error("NOME_OBRIGATORIO");
+  }
+
+  const jaExiste = await louvorJaExisteFirestore(pessoaKey, nomeLimpo);
+
+  if (jaExiste) {
+    throw new Error("LOUVOR_DUPLICADO");
+  }
+
   await addDoc(col, {
     pessoa: pessoaKey,
-    nome: data.nome,
-    youtube: data.youtube || "",
-    letra: data.letra || "",
-    cifra: data.cifra || "",
+    nome: nomeLimpo,
+    nomeNormalizado: normalizarTexto(nomeLimpo),
+    youtube: String(data.youtube || "").trim(),
+    letra: String(data.letra || "").trim(),
+    cifra: String(data.cifra || "").trim(),
     createdAt: serverTimestamp()
   });
 }
 
-/* =========================================================
-   AGENDA (REALTIME)
-========================================================= */
 
-// ===== AGENDA (REALTIME) =====
+/* =========================================================
+   AGENDA - OUVIR ITENS EM TEMPO REAL
+========================================================= */
 
 export function listenAgendaDay(dayKey, onUpdate) {
   const ref = doc(db, "groups", GROUP_ID, "agenda", dayKey);
@@ -95,7 +157,12 @@ export function listenAgendaDay(dayKey, onUpdate) {
   });
 }
 
-// ✅ Agora recebe o ITEM completo (name, youtube, letra, cifra)
+
+/* =========================================================
+   AGENDA - ADICIONAR ITEM
+   Salva item completo com links e identificador único
+========================================================= */
+
 export async function addAgendaItemFirestore(dayKey, item) {
   const ref = doc(db, "groups", GROUP_ID, "agenda", dayKey);
   const snap = await getDoc(ref);
@@ -114,7 +181,12 @@ export async function addAgendaItemFirestore(dayKey, item) {
   await setDoc(ref, { items: [...items, newItem] }, { merge: true });
 }
 
-// ✅ Remove por ID, mas tem fallback por índice (pra itens antigos sem id)
+
+/* =========================================================
+   AGENDA - REMOVER ITEM
+   Remove por ID e usa índice como fallback
+========================================================= */
+
 export async function removeAgendaItemFirestore(dayKey, itemId, indexFallback = null) {
   const ref = doc(db, "groups", GROUP_ID, "agenda", dayKey);
   const snap = await getDoc(ref);
@@ -124,7 +196,7 @@ export async function removeAgendaItemFirestore(dayKey, itemId, indexFallback = 
   let next = items;
 
   if (itemId) {
-    next = items.filter(it => it?.id !== itemId);
+    next = items.filter((it) => it?.id !== itemId);
   } else if (typeof indexFallback === "number") {
     next = [...items];
     next.splice(indexFallback, 1);
