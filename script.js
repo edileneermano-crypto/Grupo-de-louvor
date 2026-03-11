@@ -259,10 +259,17 @@ function setupRepertorioFirestore(fb) {
     container.innerHTML = `<h2>Louvores - ${tituloAtual}</h2><p class="muted">Carregando...</p>`;
     container.scrollIntoView({ behavior: "smooth", block: "start" });
 
-    unsubscribe = fb.listenLouvoresByPessoa(pessoa, (lista) => {
-      listaAtual = Array.isArray(lista) ? lista : [];
-      renderLouvores(listaAtual);
-    });
+   unsubscribe = fb.listenLouvoresByPessoa(pessoa, (lista) => {
+
+  listaAtual = Array.isArray(lista) ? lista : [];
+
+  // ordenar alfabeticamente
+  listaAtual.sort((a, b) =>
+    (a.nome || "").localeCompare(b.nome || "", "pt-BR", { sensitivity: "base" })
+  );
+
+  renderLouvores(listaAtual);
+  });
   };
 
   const hash = (window.location.hash || "").replace("#", "").trim();
