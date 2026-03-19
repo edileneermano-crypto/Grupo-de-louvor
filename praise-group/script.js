@@ -1,56 +1,61 @@
 /* =========================================================
    PRAISE GROUP - SCRIPT PRINCIPAL
-   Código organizado, limpo e integrado ao Firestore
+   Organizado, limpo e preparado para PWA + Firestore
 ========================================================= */
-
 
 /* =========================================================
-   1) LOADER
-   Fecha automaticamente se existir na página
+   1) EVENTOS INICIAIS
 ========================================================= */
-window.addEventListener("load", () => {
-  const loader = document.getElementById("loader");
-  if (!loader) return;
+window.addEventListener("load", initLoader);
 
-  const close = () => {
-    loader.classList.add("hidden");
-    setTimeout(() => loader.remove(), 700);
-  };
-
-  setTimeout(close, 700);
-  setTimeout(close, 4000);
-});
-
-
-/* =========================================================
-   2) DARK MODE
-   Tema global salvo no localStorage
-========================================================= */
 document.addEventListener("DOMContentLoaded", () => {
-  const toggle = document.getElementById("darkToggle");
-  const tema = localStorage.getItem("tema") || "dark";
-
-  if (tema === "light") document.body.classList.add("light");
-  if (toggle) toggle.checked = (tema === "light");
-
-  if (toggle) {
-    toggle.addEventListener("change", () => {
-      document.body.classList.toggle("light");
-      localStorage.setItem(
-        "tema",
-        document.body.classList.contains("light") ? "light" : "dark"
-      );
-    });
-  }
-
+  initTheme();
   initHamburger();
+  registerServiceWorker();
   initFirestoreFeatures();
 });
 
 
 /* =========================================================
-   3) MENU HAMBURGER
-   Controle do menu mobile
+   2) LOADER
+========================================================= */
+function initLoader() {
+  const loader = document.getElementById("loader");
+  if (!loader) return;
+
+  const closeLoader = () => {
+    loader.classList.add("hidden");
+    setTimeout(() => loader.remove(), 700);
+  };
+
+  setTimeout(closeLoader, 700);
+  setTimeout(closeLoader, 4000);
+}
+
+
+/* =========================================================
+   3) TEMA DARK/LIGHT
+========================================================= */
+function initTheme() {
+  const toggle = document.getElementById("darkToggle");
+  const temaSalvo = localStorage.getItem("tema") || "dark";
+
+  document.body.classList.toggle("light", temaSalvo === "light");
+
+  if (toggle) {
+    toggle.checked = temaSalvo === "light";
+
+    toggle.addEventListener("change", () => {
+      const isLight = toggle.checked;
+      document.body.classList.toggle("light", isLight);
+      localStorage.setItem("tema", isLight ? "light" : "dark");
+    });
+  }
+}
+
+
+/* =========================================================
+   4) MENU HAMBURGER
 ========================================================= */
 function initHamburger() {
   const btn = document.getElementById("hamburger");
@@ -64,13 +69,16 @@ function initHamburger() {
   };
 
   const toggleMenu = () => {
-    const open = nav.classList.toggle("nav-open");
-    btn.classList.toggle("is-open", open);
-    btn.setAttribute("aria-expanded", open ? "true" : "false");
+    const isOpen = nav.classList.toggle("nav-open");
+    btn.classList.toggle("is-open", isOpen);
+    btn.setAttribute("aria-expanded", isOpen ? "true" : "false");
   };
 
   btn.addEventListener("click", toggleMenu);
-  nav.querySelectorAll("a").forEach((a) => a.addEventListener("click", closeMenu));
+
+  nav.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", closeMenu);
+  });
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") closeMenu();
@@ -89,13 +97,28 @@ function initHamburger() {
 
 
 /* =========================================================
-   4) INICIALIZAÇÃO DO FIRESTORE
-   Ativa apenas os recursos da página atual
+   5) REGISTRO DO SERVICE WORKER (PWA)
+========================================================= */
+function registerServiceWorker() {
+  if (!("serviceWorker" in navigator)) return;
+
+  window.addEventListener("load", async () => {
+    try {
+      await navigator.serviceWorker.register("./service-worker.js");
+      console.log("Service Worker registrado com sucesso.");
+    } catch (error) {
+      console.error("Erro ao registrar Service Worker:", error);
+    }
+  });
+}
+
+
+/* =========================================================
+   6) INICIALIZAÇÃO CONDICIONAL DO FIRESTORE
 ========================================================= */
 async function initFirestoreFeatures() {
   const isRepertorio = !!document.getElementById("listaLouvores");
-  const isNovoLouvor =
-    !!document.getElementById("pessoa") && !!document.getElementById("nome");
+  const isNovoLouvor = !!document.getElementById("pessoa") && !!document.getElementById("nome");
   const isAgenda = !!document.querySelector(".day-card");
 
   if (!isRepertorio && !isNovoLouvor && !isAgenda) return;
@@ -103,9 +126,9 @@ async function initFirestoreFeatures() {
   let fb;
   try {
     fb = await import("./firebase.js");
-  } catch (err) {
-    console.error("Erro ao carregar firebase.js:", err);
-    alert("Firebase não carregou. Verifique firebase.js e as regras do Firestore.");
+  } catch (error) {
+    console.error("Erro ao carregar firebase.js:", error);
+    alert("Firebase não carregou. Verifique o arquivo firebase.js e as regras do Firestore.");
     return;
   }
 
@@ -116,109 +139,32 @@ async function initFirestoreFeatures() {
 
 
 /* =========================================================
-   5) REPERTÓRIO
-   Lista em tempo real + pesquisa de louvores por pasta
+   7) REPERTÓRIO
 ========================================================= */
 function setupRepertorioFirestore(fb) {
+  const container = document.getElementById("listaLouvores");
+  if (!container) return;
+
   let unsubscribe = null;
   let listaAtual = [];
   let tituloAtual = "";
   let termoBuscaAtual = "";
 
-  function normalizarTexto(texto) {
-    return String(texto || "")
-      .trim()
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "");
-  }
-
- function renderLouvores(listaFiltrada) {
-  const container = document.getElementById("listaLouvores");
-  if (!container) return;
-
-  let html = `
-    <h2>Louvores - ${tituloAtual}</h2>
-
-    <div class="repertorio-search">
-      <input
-        type="text"
-        id="buscarLouvor"
-        placeholder="Pesquisar louvor nesta pasta..."
-        aria-label="Pesquisar louvor nesta pasta"
-      />
-    </div>
-  `;
-
-  if (!listaAtual.length) {
-    html += `<p class="muted">Nenhum louvor adicionado ainda.</p>`;
-    container.innerHTML = html;
-
-    const inputBusca = document.getElementById("buscarLouvor");
-    if (inputBusca) {
-      inputBusca.value = termoBuscaAtual;
-      inputBusca.addEventListener("input", handleBuscaLouvor);
-
-      if (termoBuscaAtual) {
-        inputBusca.focus();
-        inputBusca.setSelectionRange(inputBusca.value.length, inputBusca.value.length);
-      }
-    }
-    return;
-  }
-
-  if (!listaFiltrada.length) {
-    html += `<p class="muted">Nenhum louvor encontrado.</p>`;
-    container.innerHTML = html;
-
-    const inputBusca = document.getElementById("buscarLouvor");
-    if (inputBusca) {
-      inputBusca.value = termoBuscaAtual;
-      inputBusca.addEventListener("input", handleBuscaLouvor);
-
-      inputBusca.focus();
-      inputBusca.setSelectionRange(inputBusca.value.length, inputBusca.value.length);
-    }
-    return;
-  }
-
-  listaFiltrada.forEach((l, idx) => {
-    html += `
-      <div class="louvor-item">
-        <strong>${idx + 1}. ${escapeHTML(l.nome || "")}</strong>
-        <div class="icons">
-          ${l.youtube ? `
-            <a href="${l.youtube}" target="_blank" rel="noopener" title="YouTube">
-              <img src="icon/icone youtube.png" class="icon-img" alt="YouTube">
-            </a>` : ""}
-
-          ${l.letra ? `
-            <a href="${l.letra}" target="_blank" rel="noopener" title="Letra">
-              <img src="icon/icone letras.png" class="icon-img" alt="Letra">
-            </a>` : ""}
-
-          ${l.cifra ? `
-            <a href="${l.cifra}" target="_blank" rel="noopener" title="Cifra">
-              <img src="icon/icone cifra club.png" class="icon-img" alt="Cifra">
-            </a>` : ""}
-        </div>
-      </div>
-    `;
-  });
-
-  container.innerHTML = html;
-
-  const inputBusca = document.getElementById("buscarLouvor");
-  if (inputBusca) {
-    inputBusca.value = termoBuscaAtual;
-    inputBusca.addEventListener("input", handleBuscaLouvor);
-
-    if (termoBuscaAtual) {
-      inputBusca.focus();
-      inputBusca.setSelectionRange(inputBusca.value.length, inputBusca.value.length);
-    }
-  }
-}
+  const nomesBonitos = {
+    joao: "João",
+    antonio: "Antonio Carlos",
+    sofia: "Sofia",
+    jessica: "Jessica",
+    laura: "Laura",
+    kele: "Kele",
+    eliana: "Eliana",
+    edilene: "Edilene",
+    elaine: "Elaine",
+    maisa: "Maisa",
+    kauan: "Kauan",
+    mulheresjustificadas: "Mulheres Justificadas",
+    sugestoes: "Sugestões",
+  };
 
   function handleBuscaLouvor(e) {
     termoBuscaAtual = e.target.value || "";
@@ -231,61 +177,122 @@ function setupRepertorioFirestore(fb) {
     renderLouvores(listaFiltrada);
   }
 
-  window.abrirLouvores = function (pessoa) {
-    const container = document.getElementById("listaLouvores");
-    if (!container) return;
+  function renderLouvores(listaFiltrada) {
+    let html = `
+      <h2>Louvores - ${escapeHTML(tituloAtual)}</h2>
 
+      <div class="repertorio-search">
+        <input
+          type="text"
+          id="buscarLouvor"
+          placeholder="Pesquisar louvor nesta pasta..."
+          aria-label="Pesquisar louvor nesta pasta"
+        />
+      </div>
+    `;
+
+    if (!listaAtual.length) {
+      html += `<p class="muted">Nenhum louvor adicionado ainda.</p>`;
+      container.innerHTML = html;
+      restoreSearchInput();
+      return;
+    }
+
+    if (!listaFiltrada.length) {
+      html += `<p class="muted">Nenhum louvor encontrado.</p>`;
+      container.innerHTML = html;
+      restoreSearchInput(true);
+      return;
+    }
+
+    html += listaFiltrada
+      .map((louvor, idx) => {
+        const nome = escapeHTML(louvor.nome || "");
+
+        return `
+          <div class="louvor-item">
+            <strong>${idx + 1}. ${nome}</strong>
+
+            <div class="icons">
+              ${louvor.youtube ? `
+                <a href="${louvor.youtube}" target="_blank" rel="noopener" title="YouTube">
+                  <img src="icon/icone youtube.png" class="icon-img" alt="YouTube">
+                </a>
+              ` : ""}
+
+              ${louvor.letra ? `
+                <a href="${louvor.letra}" target="_blank" rel="noopener" title="Letra">
+                  <img src="icon/icone letras.png" class="icon-img" alt="Letra">
+                </a>
+              ` : ""}
+
+              ${louvor.cifra ? `
+                <a href="${louvor.cifra}" target="_blank" rel="noopener" title="Cifra Club">
+                  <img src="icon/icone cifra club.png" class="icon-img" alt="Cifra Club">
+                </a>
+              ` : ""}
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+
+    container.innerHTML = html;
+    restoreSearchInput();
+  }
+
+  function restoreSearchInput(forceFocus = false) {
+    const inputBusca = document.getElementById("buscarLouvor");
+    if (!inputBusca) return;
+
+    inputBusca.value = termoBuscaAtual;
+    inputBusca.addEventListener("input", handleBuscaLouvor);
+
+    if (termoBuscaAtual || forceFocus) {
+      inputBusca.focus();
+      inputBusca.setSelectionRange(inputBusca.value.length, inputBusca.value.length);
+    }
+  }
+
+  function abrirLouvores(pessoa) {
     if (typeof unsubscribe === "function") unsubscribe();
-
-    const nomesBonitos = {
-      joao: "João",
-      antonio: "Antonio Carlos",
-      sofia: "Sofia",
-      jessica: "Jessica",
-      laura: "Laura",
-      kele: "Kele",
-      eliana: "Eliana",
-      edilene: "Edilene",
-      elaine: "Elaine",
-      maisa: "Maisa",
-      kauan: "Kauan",
-      mulheresjustificadas: "Mulheres Justificadas",
-      sugestoes: "Sugestões",
-    };
 
     tituloAtual = nomesBonitos[pessoa] || pessoa;
     termoBuscaAtual = "";
 
-    container.innerHTML = `<h2>Louvores - ${tituloAtual}</h2><p class="muted">Carregando...</p>`;
+    container.innerHTML = `
+      <h2>Louvores - ${escapeHTML(tituloAtual)}</h2>
+      <p class="muted">Carregando...</p>
+    `;
+
     container.scrollIntoView({ behavior: "smooth", block: "start" });
 
-   unsubscribe = fb.listenLouvoresByPessoa(pessoa, (lista) => {
+    unsubscribe = fb.listenLouvoresByPessoa(pessoa, (lista) => {
+      listaAtual = Array.isArray(lista) ? lista : [];
 
-  listaAtual = Array.isArray(lista) ? lista : [];
+      listaAtual.sort((a, b) =>
+        (a.nome || "").localeCompare(b.nome || "", "pt-BR", { sensitivity: "base" })
+      );
 
-  // ordenar alfabeticamente
-  listaAtual.sort((a, b) =>
-    (a.nome || "").localeCompare(b.nome || "", "pt-BR", { sensitivity: "base" })
-  );
+      renderLouvores(listaAtual);
+    });
+  }
 
-  renderLouvores(listaAtual);
-  });
-  };
+  window.abrirLouvores = abrirLouvores;
 
   const hash = (window.location.hash || "").replace("#", "").trim();
   if (hash) {
-    window.abrirLouvores(hash);
+    abrirLouvores(hash);
     history.replaceState(null, "", window.location.pathname);
   }
 }
 
 
 /* =========================================================
-   6) NOVO LOUVOR
-   Salva no Firestore com tratamento de duplicidade
+   8) NOVO LOUVOR
 ========================================================= */
 function setupNovoLouvorFirestore(fb) {
-  window.salvarLouvor = async function () {
+  async function salvarLouvor() {
     const pessoa = document.getElementById("pessoa")?.value || "";
     const nome = document.getElementById("nome")?.value?.trim() || "";
     const youtube = document.getElementById("youtube")?.value?.trim() || "";
@@ -314,13 +321,14 @@ function setupNovoLouvorFirestore(fb) {
       console.error("Erro ao salvar louvor:", error);
       alert("Erro ao salvar o louvor. Tente novamente.");
     }
-  };
+  }
+
+  window.salvarLouvor = salvarLouvor;
 }
 
 
 /* =========================================================
-   7) AGENDA
-   Integração com Firestore e modal de cadastro
+   9) AGENDA
 ========================================================= */
 let agendaSelectedDayKey = null;
 
@@ -332,6 +340,7 @@ function setupAgendaFirestore(fb) {
     const dayKey = card.getAttribute("data-day");
     const ul = card.querySelector(".day-list");
     const addBtn = card.querySelector(".day-add");
+
     if (!dayKey || !ul || !addBtn) return;
 
     fb.listenAgendaDay(dayKey, (items) => {
@@ -353,44 +362,48 @@ function renderAgendaListFirestore(ul, items, dayKey, fb) {
     return;
   }
 
-  ul.innerHTML = items.map((it, idx) => {
-    const name = it?.name || it?.nome || "";
+  ul.innerHTML = items
+    .map((item, idx) => {
+      const name = escapeHTML(item?.name || item?.nome || "");
 
-    const yt = it?.youtube ? `
-      <a href="${it.youtube}" target="_blank" rel="noopener" title="YouTube">
-        <img src="icon/icone youtube.png" class="mini-icon" alt="YT">
-      </a>` : "";
+      return `
+        <li class="louvor-item-lista">
+          <div class="nome-louvor">
+            <span>${name}</span>
+          </div>
 
-    const lt = it?.letra ? `
-      <a href="${it.letra}" target="_blank" rel="noopener" title="Letras">
-        <img src="icon/icone letras.png" class="mini-icon" alt="LT">
-      </a>` : "";
+          <div class="day-links">
+            ${item?.youtube ? `
+              <a href="${item.youtube}" target="_blank" rel="noopener" title="YouTube">
+                <img src="icon/icone youtube.png" class="mini-icon" alt="YouTube">
+              </a>
+            ` : ""}
 
-    const cf = it?.cifra ? `
-      <a href="${it.cifra}" target="_blank" rel="noopener" title="Cifra">
-        <img src="icon/icone cifra club.png" class="mini-icon" alt="CF">
-      </a>` : "";
+            ${item?.letra ? `
+              <a href="${item.letra}" target="_blank" rel="noopener" title="Letras">
+                <img src="icon/icone letras.png" class="mini-icon" alt="Letras">
+              </a>
+            ` : ""}
 
-    return `
-      <li class="louvor-item-lista">
-        <div class="nome-louvor">
-          <span>${escapeHTML(name)}</span>
-        </div>
+            ${item?.cifra ? `
+              <a href="${item.cifra}" target="_blank" rel="noopener" title="Cifra Club">
+                <img src="icon/icone cifra club.png" class="mini-icon" alt="Cifra Club">
+              </a>
+            ` : ""}
 
-        <div class="day-links">
-          ${yt}${lt}${cf}
-
-          <button
-            class="day-remove"
-            type="button"
-            data-id="${it?.id || ""}"
-            data-idx="${idx}">
-            Remover
-          </button>
-        </div>
-      </li>
-    `;
-  }).join("");
+            <button
+              class="day-remove"
+              type="button"
+              data-id="${item?.id || ""}"
+              data-idx="${idx}"
+            >
+              Remover
+            </button>
+          </div>
+        </li>
+      `;
+    })
+    .join("");
 
   ul.querySelectorAll(".day-remove").forEach((btn) => {
     btn.addEventListener("click", async () => {
@@ -429,8 +442,7 @@ function wireAgendaModalEventsFirestore(fb) {
 
   saveBtn?.addEventListener("click", async () => {
     const item = getAgendaModalValues();
-    if (!item) return;
-    if (!agendaSelectedDayKey) return;
+    if (!item || !agendaSelectedDayKey) return;
 
     await fb.addAgendaItemFirestore(agendaSelectedDayKey, item);
     closeAgendaModal();
@@ -441,15 +453,20 @@ function openAgendaModal() {
   const modal = document.getElementById("agendaModal");
   if (!modal) return;
 
-  document.getElementById("mNome").value = "";
-  document.getElementById("mYoutube").value = "";
-  document.getElementById("mLetra").value = "";
-  document.getElementById("mCifra").value = "";
+  const nome = document.getElementById("mNome");
+  const youtube = document.getElementById("mYoutube");
+  const letra = document.getElementById("mLetra");
+  const cifra = document.getElementById("mCifra");
+
+  if (nome) nome.value = "";
+  if (youtube) youtube.value = "";
+  if (letra) letra.value = "";
+  if (cifra) cifra.value = "";
 
   modal.classList.add("show");
   modal.setAttribute("aria-hidden", "false");
 
-  setTimeout(() => document.getElementById("mNome")?.focus(), 50);
+  setTimeout(() => nome?.focus(), 50);
 }
 
 function closeAgendaModal() {
@@ -473,14 +490,27 @@ function getAgendaModalValues() {
     return null;
   }
 
-  return { id: crypto.randomUUID(), name, youtube, letra, cifra };
+  return {
+    id: crypto.randomUUID(),
+    name,
+    youtube,
+    letra,
+    cifra,
+  };
 }
 
 
 /* =========================================================
-   8) UTILITÁRIOS
-   Funções auxiliares gerais do projeto
+   10) UTILITÁRIOS
 ========================================================= */
+function normalizarTexto(texto) {
+  return String(texto || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
 function escapeHTML(str) {
   return String(str)
     .replaceAll("&", "&amp;")

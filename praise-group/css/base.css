@@ -1,0 +1,49 @@
+:root {
+  --vinho: #7b001c;
+  --gold: #d4af37;
+  --dark: #0f0f0f;
+  --light: #f5f5f5;
+  --radius-1: 10px;
+  --radius-2: 12px;
+  --radius-3: 16px;
+  --radius-4: 18px;
+  --glass-1: rgba(255, 255, 255, 0.05);
+  --glass-2: rgba(255, 255, 255, 0.06);
+  --glass-3: rgba(255, 255, 255, 0.08);
+  --border-1: rgba(255, 255, 255, 0.12);
+  --border-2: rgba(212, 175, 55, 0.18);
+  --shadow-gold: 0 0 15px rgba(212, 175, 55, 0.45);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+body {
+  font-family: "Segoe UI", sans-serif;
+  background: var(--dark);
+  color: #fff;
+  transition: 0.3s ease;
+}
+
+.page-title {
+  margin: 10px 0 25px;
+  font-size: 34px;
+}
+
+.muted {
+  opacity: 0.75;
+}

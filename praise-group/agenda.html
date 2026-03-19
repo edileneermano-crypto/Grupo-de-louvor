@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Agenda semanal do Praise Group para organização dos louvores e cultos." />
+  <meta name="theme-color" content="#111111" />
+
+  <title>Agenda - Praise Group</title>
+
+  <link rel="icon" href="imagens/logo.png" />
+  <link rel="apple-touch-icon" href="imagens/logo.png" />
+  <link rel="manifest" href="manifest.json" />
+
+  <link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/header.css">
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/repertorio.css">
+<link rel="stylesheet" href="css/agenda.css">
+<link rel="stylesheet" href="css/modal.css">
+<link rel="stylesheet" href="css/novo-louvor.css">
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/responsive.css">
+
+</head>
+<body>
+  <header>
+    <h2>Praise Group</h2>
+
+    <nav id="mainNav">
+      <a href="index.html">Home</a>
+      <a href="repertorio.html">Repertório</a>
+      <a href="agenda.html">Agenda</a>
+      <a href="novo-louvor.html">Novo Louvor</a>
+    </nav>
+
+    <button
+      class="hamburger"
+      id="hamburger"
+      aria-label="Abrir menu"
+      aria-expanded="false"
+      aria-controls="mainNav"
+      type="button"
+    >
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <div class="toggle-container">
+      <label class="switch" aria-label="Alternar modo escuro">
+        <input type="checkbox" id="darkToggle" />
+        <span class="slider"></span>
+      </label>
+    </div>
+  </header>
+
+  <main>
+    <section class="agenda-card">
+      <h1 class="page-title">Agenda da Semana</h1>
+
+      <h3>Sede</h3>
+      <div class="agenda-days">
+        <div class="agenda-day day-card" data-day="sede-quarta">
+          <div class="day-top">
+            <strong>Quarta-feira</strong>
+            <button class="day-add" type="button">+ Adicionar</button>
+          </div>
+          <ul class="day-list"></ul>
+        </div>
+
+        <div class="agenda-day day-card" data-day="sede-sexta">
+          <div class="day-top">
+            <strong>Sexta-feira</strong>
+            <button class="day-add" type="button">+ Adicionar</button>
+          </div>
+          <ul class="day-list"></ul>
+        </div>
+
+        <div class="agenda-day day-card" data-day="sede-domingo-manha">
+          <div class="day-top">
+            <strong>Domingo - Manhã</strong>
+            <button class="day-add" type="button">+ Adicionar</button>
+          </div>
+          <ul class="day-list"></ul>
+        </div>
+
+        <div class="agenda-day day-card" data-day="sede-domingo-noite">
+          <div class="day-top">
+            <strong>Domingo - Noite</strong>
+            <button class="day-add" type="button">+ Adicionar</button>
+          </div>
+          <ul class="day-list"></ul>
+        </div>
+      </div>
+
+      <h3>Santa Lídia</h3>
+      <div class="agenda-days">
+        <div class="agenda-day day-card" data-day="sl-terca">
+          <div class="day-top">
+            <strong>Terça-feira</strong>
+            <button class="day-add" type="button">+ Adicionar</button>
+          </div>
+          <ul class="day-list"></ul>
+        </div>
+
+        <div class="agenda-day day-card" data-day="sl-domingo-manha">
+          <div class="day-top">
+            <strong>Domingo - Manhã</strong>
+            <button class="day-add" type="button">+ Adicionar</button>
+          </div>
+          <ul class="day-list"></ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= MODAL: ADICIONAR LOUVOR NA AGENDA ================= -->
+  <div class="modal-backdrop" id="agendaModal" aria-hidden="true">
+    <div
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modalTitle"
+    >
+      <div class="modal-header">
+        <h3 id="modalTitle">Adicionar Louvor</h3>
+        <button
+          class="modal-close"
+          type="button"
+          id="modalClose"
+          aria-label="Fechar"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <label class="field">
+          <span>Nome do Louvor *</span>
+          <input type="text" id="mNome" placeholder="Ex: Oceanos" />
+        </label>
+
+        <label class="field">
+          <span>Link YouTube</span>
+          <input type="url" id="mYoutube" placeholder="https://youtube.com/..." />
+        </label>
+
+        <label class="field">
+          <span>Link Letras</span>
+          <input type="url" id="mLetra" placeholder="https://www.letras.mus.br/..." />
+        </label>
+
+        <label class="field">
+          <span>Link Cifra Club</span>
+          <input type="url" id="mCifra" placeholder="https://www.cifraclub.com.br/..." />
+        </label>
+
+        <p class="modal-hint">* obrigatório</p>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-secondary" type="button" id="modalCancel">Cancelar</button>
+        <button class="btn-primary" type="button" id="modalSave">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "Praise Group",
+  "short_name": "Praise Group",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f0f0f",
+  "theme_color": "#7b001c",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "imagens/logo-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "imagens/logo-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

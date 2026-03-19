@@ -1,0 +1,58 @@
+body.light {
+  background: var(--light);
+  color: #111;
+}
+
+body.light header {
+  background: #fff;
+  color: #111;
+}
+
+body.light nav a {
+  color: #111;
+}
+
+body.light .hero-overlay {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+body.light .card,
+body.light .agenda-day,
+body.light .day-card,
+body.light .form-card,
+body.light .lista-louvores {
+  background: rgba(0, 0, 0, 0.05);
+  color: #111;
+}
+
+body.light .day-list li {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+body.light .modal-backdrop {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+body.light .modal {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+body.light .field input,
+body.light .form-card input,
+body.light .form-card select {
+  background: rgba(0, 0, 0, 0.05);
+  color: #111;
+}
+
+body.light .modal-close,
+body.light .btn-secondary {
+  color: #111;
+}
+
+body.light .hamburger {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+body.light .hamburger span {
+  background: #111;
+}
