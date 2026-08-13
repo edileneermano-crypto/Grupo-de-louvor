@@ -1,0 +1,109 @@
+.repertorio-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 28px 80px;
+}
+
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 22px;
+  margin-top: 10px;
+}
+
+.card {
+  appearance: none;
+  border: 1px solid var(--border-2);
+  background: var(--glass-2);
+  color: #fff;
+  border-radius: var(--radius-3);
+  padding: 26px 18px;
+  min-height: 110px;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 18px rgba(212, 175, 55, 0.25);
+  border-color: rgba(212, 175, 55, 0.45);
+}
+
+.card.destaque {
+  border: 2px solid #7c1204;
+  background: linear-gradient(145deg, #9b2e2e, #690b0b);
+  box-shadow: 0 0 15px rgba(82, 1, 1, 0.5);
+}
+
+.lista-louvores {
+  margin-top: 28px;
+  padding: 26px;
+  border-radius: var(--radius-3);
+  border: 1px solid var(--border-2);
+  background: var(--glass-1);
+  backdrop-filter: blur(10px);
+}
+
+.louvor-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.louvor-item:last-child {
+  border-bottom: none;
+}
+
+.repertorio-search {
+  width: 100%;
+  margin: 16px 0 20px;
+}
+
+.repertorio-search input {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid #d8d8d8;
+  outline: none;
+  font-size: 15px;
+  background: #fff;
+  color: #222;
+  transition: 0.2s ease;
+}
+
+.repertorio-search input:focus {
+  border-color: #7b001c;
+  box-shadow: 0 0 0 3px rgba(123, 0, 28, 0.12);
+}
+
+.icons {
+  display: flex;
+  gap: 10px;
+}
+
+.icons a {
+  text-decoration: none;
+}
+
+.icon-img {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+  display: block;
+  opacity: 0.95;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.icons a:hover .icon-img {
+  transform: translateY(-2px);
+  opacity: 1;
+}
