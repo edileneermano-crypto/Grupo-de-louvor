@@ -20,6 +20,10 @@ document.addEventListener("DOMContentLoaded", () => {
    PROTEÇÃO DE LOGIN
 ========================================================= */
 
+/* =========================================================
+   PROTEÇÃO DE LOGIN
+========================================================= */
+
 async function initProtecaoLogin() {
 
   // Identifica a página atual
@@ -35,20 +39,26 @@ async function initProtecaoLogin() {
 
   try {
 
-    // Carrega o Firebase
+    // Carrega o Firebase a partir da raiz do site
     const fb = await import("/firebase.js");
 
     fb.observarAutenticacao((usuario) => {
 
       if (!usuario) {
 
-        console.log("Usuário não autenticado. Redirecionando para login...");
+        console.log(
+          "Usuário não autenticado. Redirecionando para login..."
+        );
 
+        // Login sempre está na raiz /login/
         window.location.replace("/login/login.html");
 
       } else {
 
-        console.log("Usuário autenticado:", usuario.uid);
+        console.log(
+          "Usuário autenticado:",
+          usuario.uid
+        );
 
       }
 
@@ -56,7 +66,10 @@ async function initProtecaoLogin() {
 
   } catch (error) {
 
-    console.error("Erro ao verificar autenticação:", error);
+    console.error(
+      "Erro ao verificar autenticação:",
+      error
+    );
 
   }
 }
@@ -149,7 +162,7 @@ function registerServiceWorker() {
 
   window.addEventListener("load", async () => {
     try {
-      await navigator.serviceWorker.register("./service-worker.js");
+      await navigator.serviceWorker.register("/service-worker.js");
       console.log("Service Worker registrado com sucesso.");
     } catch (error) {
       console.error("Erro ao registrar Service Worker:", error);
