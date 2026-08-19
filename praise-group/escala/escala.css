@@ -40,6 +40,61 @@ body {
     opacity: 0.8;
 }
 
+
+/* =========================================
+   LOGO DO CABEÇALHO
+========================================= */
+
+.escala-header .logo {
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* =========================================
+   MENU PRINCIPAL
+========================================= */
+
+.escala-header #mainNav {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.escala-header #mainNav a {
+    color: white;
+    text-decoration: none;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition: color 0.3s ease;
+}
+
+.escala-header #mainNav a:hover {
+    color: #d4af37;
+}
+
+
+/* =========================================
+   PÁGINA ATUAL
+========================================= */
+
+.escala-header #mainNav a.active {
+    color: #d4af37;
+}
+
+
+/* =========================================
+   BOTÃO VOLTAR
+========================================= */
+
+/*
+   Mantido caso seja utilizado em outra parte
+   da página. O cabeçalho agora utiliza o
+   menu principal.
+*/
+
 .voltar {
     color: white;
     text-decoration: none;
@@ -207,6 +262,7 @@ body {
     }
 
 }
+
 
 /* =========================================
    CALENDÁRIO
@@ -615,6 +671,7 @@ body {
 
 }
 
+
 /* =====================================================
    ÍCONE PROFISSIONAL DAS IGREJAS
 ===================================================== */
@@ -650,6 +707,7 @@ body {
         drop-shadow(0 0 4px rgba(212, 175, 55, 0.35));
 }
 
+
 /* =====================================================
    ÍCONE DO CALENDÁRIO
 ===================================================== */
@@ -671,4 +729,35 @@ body {
     width: 100%;
     height: 100%;
     display: block;
+}
+
+
+/* =====================================================
+   AJUSTE DO MENU NO CELULAR
+===================================================== */
+
+@media (max-width: 700px) {
+
+    .escala-header {
+        flex-direction: column;
+        align-items: center;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .escala-header #mainNav {
+        width: 100%;
+
+        display: flex;
+        justify-content: center;
+
+        flex-wrap: wrap;
+
+        gap: 15px;
+    }
+
+    .escala-header #mainNav a {
+        font-size: 13px;
+    }
+
 }
